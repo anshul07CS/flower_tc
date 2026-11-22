@@ -1,0 +1,558 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#fff5f1">
+<title>A Little Garden for Samiksha</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  :root {
+    --background: #fff5f1;
+    --rose: #a94e6c;
+    --sage: #64785b;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse at 15% 15%, #ffe2e7, transparent 45%),
+      radial-gradient(ellipse at 90% 85%, #e5edda, transparent 45%),
+      var(--background);
+    font-family: "DM Sans", sans-serif;
+    color: var(--rose);
+    isolation: isolate;
+  }
+
+  /* Background */
+
+  .glow {
+    position: fixed;
+    width: 65vw;
+    height: 65vw;
+    border-radius: 50%;
+    background: #f7c8d3;
+    opacity: .3;
+    filter: blur(60px);
+    pointer-events: none;
+    animation: breathe 7s ease-in-out infinite alternate;
+  }
+
+  .glow-one {
+    top: -25%;
+    left: -20%;
+  }
+
+  .glow-two {
+    bottom: -25%;
+    right: -20%;
+    background: #bfd8b5;
+  }
+
+  @keyframes breathe {
+    to { transform: scale(1.18); }
+  }
+
+  /* Flower layer */
+
+  #garden {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .flower {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--size);
+    height: var(--size);
+    object-fit: contain;
+
+    opacity: 0;
+    transform: translate(-50%, -115vh) rotate(0deg);
+    transform-origin: center;
+    animation: flower-fall var(--duration) cubic-bezier(.18,.65,.32,1)
+               forwards;
+
+    animation-delay: var(--delay);
+    will-change: transform, opacity;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  @keyframes flower-fall {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -115vh) rotate(var(--start-rotation));
+    }
+
+    10% {
+      opacity: var(--opacity);
+    }
+
+    75% {
+      opacity: var(--opacity);
+    }
+
+    88% {
+      opacity: var(--opacity);
+    }
+
+    100% {
+      opacity: var(--opacity);
+      transform:
+        translate(calc(-50% + var(--drift)), 0)
+        rotate(var(--end-rotation));
+    }
+  }
+
+  /* Add assets while previewing */
+
+  .asset-tools {
+    position: fixed;
+    z-index: 10;
+    top: 14px;
+    right: 14px;
+  }
+
+  .asset-tools label {
+    display: block;
+    padding: 9px 13px;
+    border-radius: 30px;
+    border: 1px solid #e9c7cd;
+    background: rgba(255, 250, 247, .88);
+    color: #8c5969;
+    font-size: 11px;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+  }
+
+  #flower-upload {
+    display: none;
+  }
+
+  /* Centre message */
+
+  .message-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    pointer-events: none;
+  }
+
+  .message-circle {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    width: min(84vw, 355px);
+    aspect-ratio: 1;
+    padding: 32px;
+
+    border-radius: 50%;
+    border: 1px solid rgba(176, 100, 122, .3);
+    background: rgba(255, 249, 245, .96);
+
+    box-shadow:
+      0 0 0 9px rgba(255, 249, 245, .3),
+      0 15px 65px rgba(130, 70, 85, .15);
+
+    visibility: hidden;
+    opacity: 0;
+    transform: scale(.25);
+  }
+
+  .message-circle::before {
+    content: "";
+    position: absolute;
+    inset: 9px;
+    border: 1px dashed rgba(176, 100, 122, .35);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .message-circle.show {
+    visibility: visible;
+    animation: reveal-circle 1.4s cubic-bezier(.16, 1, .3, 1) forwards;
+  }
+
+  @keyframes reveal-circle {
+    0% {
+      opacity: 0;
+      transform: scale(.25);
+    }
+    70% {
+      opacity: 1;
+      transform: scale(1.035);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .flourish {
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 25px;
+    color: #c77c91;
+    margin-bottom: 10px;
+  }
+
+  .eyebrow {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #a77b85;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: "Playfair Display", Georgia, serif;
+    font-weight: 500;
+    font-size: clamp(27px, 7.3vw, 35px);
+    line-height: 1.25;
+    color: #90435d;
+  }
+
+  h1 em {
+    color: #bd6883;
+    font-weight: 500;
+  }
+
+  .separator {
+    margin: 13px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #cb899b;
+    font-size: 15px;
+  }
+
+  .separator::before,
+  .separator::after {
+    content: "";
+    width: 25px;
+    height: 1px;
+    background: #e5bdc7;
+  }
+
+  .viva {
+    color: #68785f;
+    font-size: 12px;
+    line-height: 1.6;
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  .viva strong {
+    display: block;
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 19px;
+    font-weight: 500;
+    margin-bottom: 3px;
+  }
+
+  .viva.show {
+    animation: text-appear 1s ease forwards;
+  }
+
+  .signature {
+    margin-top: 11px;
+    color: #b08a92;
+    font-size: 9px;
+    letter-spacing: 1.4px;
+    opacity: 0;
+    transform: translateY(7px);
+  }
+
+  .signature.show {
+    animation: text-appear 1s ease forwards;
+  }
+
+  @keyframes text-appear {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 360px) {
+    .message-circle {
+      width: 88vw;
+      padding: 27px;
+    }
+
+    h1 { font-size: 27px; }
+
+    .flourish { margin-bottom: 7px; }
+
+    .separator { margin: 10px 0; }
+
+    .viva { font-size: 11px; }
+
+    .viva strong { font-size: 17px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .glow { animation: none; }
+    .flower { animation-duration: 0.1ms; }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="glow glow-one"></div>
+<div class="glow glow-two"></div>
+
+<div id="garden" aria-hidden="true"></div>
+
+<!-- Optional: select additional PNG flowers while testing -->
+<div class="asset-tools">
+  <label for="flower-upload">＋ Add flower PNGs</label>
+  <input id="flower-upload" type="file" accept="image/png,image/webp,image/jpeg" multiple>
+</div>
+
+<main class="message-layer">
+  <section class="message-circle" id="message">
+    <div class="flourish">❧</div>
+
+    <p class="eyebrow">A little reminder</p>
+
+    <h1>
+      Take care<br>
+      and get <em>well soon</em>,<br>
+      Samiksha ♡
+    </h1>
+
+    <div class="separator">✿</div>
+
+    <p class="viva" id="viva">
+      <strong>All the best!</strong>
+      For tomorrow's viva.<br>
+      You've got this.
+    </p>
+
+    <p class="signature" id="signature">
+      SENDING YOU FLOWERS ♡
+    </p>
+  </section>
+</main>
+
+<script>
+  /*
+   * ADD YOUR FLOWER FILES HERE.
+   *
+   * Put the PNGs in the SAME folder as index.html.
+   * Use the exact filenames, including capital letters.
+   * Add or remove as many filenames as you like.
+   *
+   * Transparent PNGs work best.
+   */
+
+  const FLOWER_IMAGES = [
+    "dandelions.png",
+    "whiteflower.png",
+    "rose.png",
+    "clover.png",
+    "peonies.png",
+    "blue.png",
+    "hibiscus.png",
+    "pinkish.png",
+    "purple.png",
+    "white.png",
+    "yellow.png",
+    // "tulip.png",
+    // "peony.png",
+    // "lily.png",
+    // "poppy.png",
+    // "dandelion.png",
+    // "clover.png",
+
+    // Add more below:
+    // "rose-pink.png",
+    // "tulip-purple.png",
+    // "peony-white.png",
+    // "wildflower.png",
+  ];
+
+  /*
+   * ANIMATION SETTINGS
+   *
+   * FLOWER_COUNT: how many flowers appear in total.
+   * MIN_SIZE / MAX_SIZE: image sizes in pixels.
+   * GAP: time between flower arrivals, in milliseconds.
+   *
+   * More flowers = denser garden.
+   */
+
+  const FLOWER_COUNT = 200;
+  const MIN_SIZE = 28;
+  const MAX_SIZE = 76;
+  const GAP = 75;
+
+  const garden = document.getElementById("garden");
+  const message = document.getElementById("message");
+  const viva = document.getElementById("viva");
+  const signature = document.getElementById("signature");
+  const upload = document.getElementById("flower-upload");
+
+  let flowerSources = [...FLOWER_IMAGES];
+  let animationStarted = false;
+
+  const sleep = ms =>
+    new Promise(resolve => setTimeout(resolve, ms));
+
+  function random(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  function pickRandom(items) {
+    return items[Math.floor(Math.random() * items.length)];
+  }
+
+  // Runtime uploads are added to the available flower pool.
+  // Object URLs let the browser display locally selected images.
+  upload.addEventListener("change", event => {
+    const files = Array.from(event.target.files || []);
+
+    for (const file of files) {
+      if (!file.type.startsWith("image/")) continue;
+
+      const url = URL.createObjectURL(file);
+      flowerSources.push(url);
+    }
+
+    upload.value = "";
+  });
+
+  function createFlower(index) {
+    if (flowerSources.length === 0) return;
+
+    const flower = document.createElement("img");
+
+    flower.className = "flower";
+    flower.src = pickRandom(flowerSources);
+    flower.alt = "";
+    flower.draggable = false;
+
+    const size = random(MIN_SIZE, MAX_SIZE);
+    const x = random(2, 98);
+    const y = random(2, 98);
+    const duration = random(2.5, 4.8);
+    const drift = random(-45, 45);
+    const startRotation = random(-35, 35);
+    const endRotation = random(-160, 160);
+    const opacity = random(0.76, 1);
+
+    flower.style.setProperty("--size", `${size}px`);
+    flower.style.setProperty("--x", `${x}%`);
+    flower.style.setProperty("--y", `${y}%`);
+    flower.style.setProperty("--duration", `${duration}s`);
+    flower.style.setProperty("--drift", `${drift}px`);
+    flower.style.setProperty("--start-rotation", `${startRotation}deg`);
+    flower.style.setProperty("--end-rotation", `${endRotation}deg`);
+    flower.style.setProperty("--opacity", opacity);
+    flower.style.setProperty("--delay", "0s");
+
+    // A flower falls from above and settles at its random position.
+    // It stays there, rather than blooming or growing in place.
+    garden.appendChild(flower);
+  }
+
+  async function startGarden() {
+    if (animationStarted || flowerSources.length === 0) return;
+    animationStarted = true;
+
+    // First flower.
+    createFlower(0);
+    await sleep(850);
+
+    // Second flower.
+    createFlower(1);
+    await sleep(700);
+
+    // A small group.
+    for (let i = 0; i < 5; i++) {
+      createFlower(i + 2);
+      await sleep(230);
+    }
+
+    // Increasingly dense waves.
+    for (let i = 7; i < FLOWER_COUNT; i++) {
+      createFlower(i);
+
+      // Arrival speed increases gradually.
+      const gap = Math.max(25, GAP - i * 0.45);
+      await sleep(gap);
+    }
+
+    // Wait for the final wave to land.
+    await sleep(3900);
+
+    // Reveal the circular message.
+    message.classList.add("show");
+
+    // Then reveal the viva wish.
+    await sleep(1900);
+    viva.classList.add("show");
+
+    await sleep(650);
+    signature.classList.add("show");
+  }
+
+  // Preload images first, so broken filenames don't create blank flowers.
+  async function preloadFlowers() {
+    const validSources = await Promise.all(
+      flowerSources.map(src => new Promise(resolve => {
+        const image = new Image();
+
+        image.onload = () => resolve(src);
+        image.onerror = () => resolve(null);
+        image.src = src;
+      }))
+    );
+
+    flowerSources = validSources.filter(Boolean);
+
+    if (flowerSources.length === 0) {
+      console.error(
+        "No flower images loaded. Check FLOWER_IMAGES filenames and folder location."
+      );
+      return;
+    }
+
+    startGarden();
+  }
+
+  window.addEventListener("load", preloadFlowers);
+</script>
+
+</body>
+</html>
